@@ -1,5 +1,7 @@
 package mission;
 
+import mission.pages.BasePage;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
