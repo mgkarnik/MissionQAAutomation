@@ -32,7 +32,7 @@ Feature: API test
 
 
   Scenario: LOGIN - SUCCESSFUL by a user
-    Given I login unsuccessfully with the following data
+    Given I login successfully with the following data
       | Email              | Password   |
       | eve.holt@reqres.in | cityslicka |
     Then I should get a response code of 200
