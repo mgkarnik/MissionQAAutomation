@@ -3,6 +3,10 @@
 
 <suite name="Mission QA Automation Suite" verbose="1">
 
+    <listeners>
+        <listener class-name="mission.runner.CucumberReportListener"/>
+    </listeners>
+
     <test name="API and UI Automation Tests">
         <classes>
             <class name="mission.runner.RunnerTest"/>

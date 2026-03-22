@@ -20,3 +20,6 @@ test-output/
 
 # Log files
 *.log
+
+# API key - never commit real credentials
+# Set via environment variable API_KEY
