@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="Mission QA Automation Suite" verbose="1">
+
+    <test name="API and UI Automation Tests">
+        <classes>
+            <class name="mission.runner.RunnerTest"/>
+        </classes>
+    </test>
+
+</suite>
