@@ -107,7 +107,7 @@ public class UIStepDefinitions {
         checkoutPage.fillLastName(lastName);
     }
 
-    @And("I type {string} for ZIP/Postal Code")
+    @And("I type {string} for ZIP\\/Postal Code")
     public void iTypeForZipPostalCode(String zipCode) {
         checkoutPage.fillPostalCode(zipCode);
     }
