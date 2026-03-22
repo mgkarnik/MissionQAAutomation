@@ -1,45 +1,364 @@
-# QA Automation Assignment
+# Mission QA Automation Framework
 
-We have added two tests: the first task is API-Test.feature and the second is UI-Test.feature.
-- For the API-Test.feature, please visit https://reqres.in/. This should contain all the requirements.
-- UI-Test.feature please visit https://www.saucedemo.com/
+A clean, maintainable, and scalable test automation framework built on top of
+the provided starter project. Implements senior-level design principles
+including Page Object Model, centralized driver management, separated API
+client layer, and environment-safe configuration handling.
 
+---
 
-Please DO use Page objects, make sure the code is reusable and feel free to improve the current code.
+## Technology Stack
 
-**Note: We have intentionally added some bugs for you to debug.** 
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Java | 11 | Programming language |
+| Maven | 3.x | Build and dependency management |
+| Selenium | 4.40.0 | UI browser automation |
+| Cucumber | 7.33.0 | BDD framework |
+| TestNG | 7.11.0 | Test execution engine |
+| RestAssured | 5.5.6 | API testing |
+| WebDriverManager | 6.3.3 | Automatic browser driver management |
+| Jackson | 2.21.1 | JSON deserialization into model classes |
+| Masterthought | 5.9.0 | HTML test reporting |
 
-Please contact the Mission Team if you have any questions.
+---
 
+## Project Structure
 
-Good luck!
+```
+src/
+├── main/java/mission/
+│   ├── config/
+│   │   └── ConfigReader.java              # Single load config with env variable support
+│   ├── driver/
+│   │   └── DriverFactory.java             # Centralized ThreadLocal driver lifecycle
+│   ├── pages/
+│   │   ├── BasePage.java                  # Reusable Selenium action helpers
+│   │   ├── LoginPage.java                 # Saucedemo login page
+│   │   ├── InventoryPage.java             # Product listing and cart addition
+│   │   ├── CartPage.java                  # Shopping cart operations
+│   │   └── CheckoutPage.java              # Checkout flow and price verification
+│   ├── api/
+│   │   ├── ApiConfig.java                 # Shared RequestSpecification
+│   │   ├── ApiClient.java                 # All HTTP request methods
+│   │   ├── endpoints/
+│   │   │   └── Endpoints.java             # API endpoint constants
+│   │   └── models/
+│   │       ├── UserData.java              # Single user response deserialization
+│   │       └── CreatedUserResponse.java   # Create user response deserialization
+│   └── utils/
+│       └── ScreenshotUtils.java           # Screenshot capture on failure
+│
+└── test/java/mission/
+    ├── hooks/
+    │   └── Hooks.java                     # Tagged @Before/@After lifecycle hooks
+    ├── steps/
+    │   ├── UIStepDefinitions.java         # UI scenario step mappings
+    │   └── APIStepDefinitions.java        # API scenario step mappings
+    └── runner/
+        ├── RunnerTest.java                # Cucumber TestNG entry point
+        └── CucumberReportListener.java    # Masterthought report generator
+```
 
-## Test Automation Framework
+---
 
-- This is a Maven based framework
-- `pom.xml` should have everything you need to create and run the tests. Please add further dependencies if you require it.
+## Prerequisites
 
-The following folder `src/test/java/AutomationTest/mission` contains the following class:
+- Java JDK 11 or higher
+- Maven 3.x
+- Firefox or Chrome browser installed
+- Internet connection — WebDriverManager downloads drivers automatically
+- A free API key from https://reqres.in
 
-- `Hook` - this is the before and after. This launches and kills the browser.
-- `RunnerTest` - contains the CucumberOptions which runs the BDD's
+---
 
-The following folder `src/main/java/AutomationTest/mission` contains the following class:
+## Environment Variables
 
-- `BrowserSetup` - This contains the setup of a given browser based on what is set to Browser property within `TestData.properties` 
+Sensitive configuration is never hardcoded. `ConfigReader` checks environment
+variables first before falling back to `TestData.properties`.
 
- 
-## Steps to execute this project
+Set the following before running API tests:
 
-- Pre-requisites
-    - JAVA SDK 1.8 or higher
-    - Maven CLI
-    
-- Steps
-    - Clone the project to local
-    - Got o command line or any IDE that supports JAVA & Maven dependencies
-    - We may need to import the Maven dependencies (Scope got set to Compile for Newly added dependencies in pom.xml)
-    - Execute the command: `mvn clean test`
-    - Alternatively, we can run `testng.xml` from IDE after downloading the dependencies
-    - Result will be captured in `test-output` folder
+**Windows**
+```cmd
+set API_KEY=your_reqres_api_key_here
+```
 
+**Mac/Linux**
+```bash
+export API_KEY=your_reqres_api_key_here
+```
+
+Get your free API key by registering at https://reqres.in
+
+---
+
+## Configuration
+
+All configuration lives in one file:
+```
+src/test/java/TestData/TestData.properties
+```
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `Browser` | `firefox` | Browser to run tests — see supported browsers below |
+| `url` | `https://www.saucedemo.com` | Base URL for UI tests |
+| `ScreenshotLocation` | `./Screenshots/` | Where to save failure screenshots |
+| `api.base.url` | `https://reqres.in/api` | Base URL for API tests |
+| `api.key` | `SET_VIA_ENVIRONMENT_VARIABLE` | Set via `API_KEY` environment variable |
+
+### Supported Browsers
+
+| Value in properties | Browser |
+|---------------------|---------|
+| `firefox` | Mozilla Firefox — recommended |
+| `chrome` | Google Chrome |
+| `chromeHeadless` | Chrome without UI — for CI/CD |
+| `edge` | Microsoft Edge |
+
+---
+
+## How to Run
+
+### Run All Tests
+```bash
+mvn clean test
+```
+
+### Run Only UI Tests
+```bash
+mvn clean test "-Dcucumber.filter.tags=@UI"
+```
+
+### Run Only API Tests
+```bash
+mvn clean test "-Dcucumber.filter.tags=@API"
+```
+
+### Run in Headless Mode
+Update `TestData.properties`:
+```properties
+Browser=chromeHeadless
+```
+Then:
+```bash
+mvn clean test
+```
+
+### Run with Different Browser
+Update `TestData.properties`:
+```properties
+Browser=firefox   # or chrome, edge, chromeHeadless
+```
+Then:
+```bash
+mvn clean test
+```
+
+---
+
+## Test Reports
+
+Two reports are generated automatically after every run.
+
+### 1. Masterthought HTML Dashboard — Primary Report
+Rich interactive dashboard generated by `CucumberReportListener` after
+all tests complete via TestNG suite listener.
+
+Location:
+```
+target/cucumber-reports/advanced-reports/cucumber-html-reports/overview-features.html
+```
+
+Contains:
+- Pass/fail summary with charts
+- Feature level breakdown
+- Scenario level breakdown
+- Step level details
+- Test environment metadata — browser, platform, framework
+- Failure details with stack traces
+
+Open `overview-features.html` in any browser after `mvn clean test`.
+
+### 2. Cucumber Pretty HTML — Secondary Report
+Standard Cucumber HTML report generated during execution.
+
+Location:
+```
+test-output/cucumber-reports/cucumber-pretty.html
+```
+
+Open via browser directly or via IntelliJ built in browser preview.
+
+### 3. Cucumber JSON — CI Integration
+Machine readable report for CI/CD pipeline integration.
+
+Location:
+```
+test-output/cucumber-reports/CucumberTestReport.json
+```
+
+### Screenshots
+Failure screenshots captured automatically for failed UI scenarios only.
+
+Location:
+```
+Screenshots/
+```
+
+Format: `ScenarioName_timestamp_browsername.jpg`
+
+### Report Metadata
+Every Masterthought report shows dynamically populated metadata:
+
+| Field | Value |
+|-------|-------|
+| Browser | Read dynamically from `TestData.properties` via `ConfigReader` |
+| Environment | Test |
+| Platform | Detected from OS automatically at runtime |
+| Framework | Selenium 4 + Cucumber 7 + TestNG |
+
+---
+
+## Test Suites
+
+### UI Tests — src/test/java/UI-Test.feature
+End to end checkout flow on https://www.saucedemo.com:
+
+- Login with standard user credentials
+- Add 4 specific items to shopping cart
+- Verify cart badge count shows 4
+- Navigate to cart and verify each item has quantity 1
+- Remove one item and verify cart badge updates to 3
+- Complete checkout with customer information
+- Verify item total equals sum of all individual item prices
+- Verify 8% tax is correctly calculated and applied
+
+### API Tests — src/test/java/API-Test.feature
+REST API validation on https://reqres.in:
+
+- List all users across pages and verify total count matches user ID count
+- Retrieve single user by ID and verify first name and email
+- Verify 404 response for non-existent user ID
+- Create users via POST and verify all required fields in response
+- Successful login returns 200 with token
+- Unsuccessful login without password returns 400 with error message
+- Delayed response returns list of users with all unique IDs
+
+---
+
+## Framework Design Decisions
+
+### Page Object Model
+All UI interactions are encapsulated in dedicated page classes under
+`mission.pages`. Step definitions only call business-level page methods.
+No Selenium code, no locators, no driver references exist in step definitions.
+
+### Centralized Driver Management
+`DriverFactory` uses `ThreadLocal<WebDriver>` ensuring complete thread
+safety and readiness for parallel execution with a single configuration
+change. No other class creates a WebDriver instance.
+
+### Tagged Hooks
+`@Before("@UI")` and `@After("@UI")` tags ensure the browser is only
+launched for UI scenarios. API tests never initialize or interact with
+a browser instance.
+
+### Shared RequestSpecification
+`ApiConfig` defines a single `RequestSpecification` with base URI,
+content type, accept headers and API key. All request methods in
+`ApiClient` reuse this — eliminating repeated configuration and
+ensuring a single place to update when environment or auth changes.
+
+### Environment Variable Config
+`ConfigReader` checks system environment variables before falling back
+to properties file values. Sensitive values like API keys are never
+committed to version control. The pattern converts property keys to
+environment variable format automatically — `api.key` becomes `API_KEY`.
+
+### Explicit Waits Only
+`BasePage` uses `WebDriverWait` with `ExpectedConditions` exclusively.
+Implicit waits are intentionally not used — mixing implicit and explicit
+waits causes unpredictable timing behaviour and flaky tests.
+
+### Selective Model Deserialization
+Jackson model classes are used only where they add genuine value —
+complex nested responses like single user and create user. Simple
+responses use `jsonPath()` directly. Over-engineering is deliberately
+avoided for straightforward assertions.
+
+### Screenshot on Failure Only
+Screenshots are captured exclusively for failed UI scenarios. Capturing
+on every scenario produces unnecessary noise and slows execution.
+
+### Masterthought Report via TestNG Listener
+`CucumberReportListener` implements `ISuiteListener` and fires after
+the entire suite completes. It reads the Cucumber JSON output and
+generates a rich HTML dashboard under `target/` — Maven's standard
+build output directory, automatically cleaned on every `mvn clean`.
+
+---
+
+## Bugs Fixed From Starter Code
+
+| # | Bug | Location | Fix |
+|---|-----|----------|-----|
+| 1 | Wrong glue path `AutomationTest.mission` | RunnerTest.java | Fixed to `mission.steps` and `mission.hooks` |
+| 2 | Browser launched for API scenarios | Hook.java | Tagged `@Before("@UI")` — API scenarios never touch browser |
+| 3 | NullPointerException taking screenshot for API tests | Hook.java | Screenshot only inside `@After("@UI")` tagged hook |
+| 4 | Wrong step name `"login unsuccessfully"` for success scenario | API-Test.feature | Changed to `"login successfully"` |
+| 5 | Wrong Scenario Outline parameter `<n>` | API-Test.feature | Changed to `<Name>` to match Examples table |
+| 6 | Deprecated `TimeUnit` syntax | Hook.java | Updated to `Duration.ofSeconds()` for Selenium 4 |
+| 7 | Implicit and explicit waits mixed | Hook.java | Removed implicit wait entirely |
+| 8 | URL hardcoded inside page class | HomePage.java | Navigation moved to `@Before` hook reading from config |
+| 9 | Old abandoned `info.cukes` dependencies | pom.xml | Upgraded to `io.cucumber` 7.x |
+| 10 | Properties file reloaded on every call | LoadProp.java | Single static load in `ConfigReader` |
+| 11 | No API key authentication | ApiConfig.java | `x-api-key` header added — reqres.in now requires auth |
+| 12 | Stale element on inventory page during item adding | InventoryPage.java | Items re-fetched each iteration to prevent stale reference |
+
+---
+
+## Known Issues
+
+### Chrome Password Manager Popup
+When running on Chrome, a native browser-level popup titled
+"Change your password" may appear after clicking "Add to cart"
+on saucedemo.com. This popup is triggered by Chrome's password
+breach detection for the test credentials used — it is a Chrome
+native UI element outside Selenium's DOM control and cannot be
+reliably dismissed via WebDriver.
+
+**Recommended:** Run tests on Firefox — fully tested and passing.
+To switch browser update `TestData.properties`:
+```properties
+Browser=firefox
+```
+
+For Chrome usage a dedicated test profile can be configured:
+```java
+chromeOptions.addArguments("--user-data-dir=./test-chrome-profile");
+```
+
+---
+
+## Parallel Execution Readiness
+
+The framework is designed for parallel execution. `DriverFactory` uses
+`ThreadLocal<WebDriver>` ensuring each thread gets its own isolated
+browser instance. To enable parallel execution update `RunnerTest.java`:
+
+```java
+// Change false to true
+@DataProvider(parallel = true)
+```
+
+No other changes required — the framework handles the rest.
+
+---
+
+## Author
+
+Mayur Karnik
+QA Lead Assessment Submission
+https://github.com/mgkarnik/MissionQAAutomation
