@@ -16,9 +16,10 @@ public class ApiConfig {
             new RequestSpecBuilder()
                     .setBaseUri(Endpoints.BASE_URL)
                     .setContentType(ContentType.JSON)
+                    .addHeader("x-api-key", ConfigReader.getProperty("api.key"))
                     .build();
 
-    public static RequestSpecification getRequestSpec(){
+    public static RequestSpecification getRequestSpec() {
         return requestSpec;
     }
 }
