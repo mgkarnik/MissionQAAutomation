@@ -18,9 +18,17 @@ public class ConfigReader {
     }
 
     public static String getProperty(String key) {
+        // Check environment variable first
+        String envKey = key.toUpperCase().replace(".", "_");
+        String envValue = System.getenv(envKey);
+
+        if (envValue != null && !envValue.isEmpty()) {
+            return envValue;
+        }
+
         String value = properties.getProperty(key);
         if (value == null) {
-            throw new RuntimeException("Property '" + key + "' not found in TestData.properties");
+            throw new RuntimeException("Property '" + key + "' not found in TestData.properties or environment variables");
         }
         return value;
     }
