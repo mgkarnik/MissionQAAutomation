@@ -35,9 +35,15 @@ public class CheckoutPage extends BasePage{
     /**
      * Fills in customer info form
      */
-    public void fillCustomerInfo(String firstName, String lastName, String zip) {
+    public void fillFirstName(String firstName) {
         sendKeys(firstNameField, firstName);
+    }
+
+    public void fillLastName(String lastName) {
         sendKeys(lastNameField, lastName);
+    }
+
+    public void fillPostalCode(String zip) {
         sendKeys(postalCodeField, zip);
     }
 
