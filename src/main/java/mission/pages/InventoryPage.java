@@ -21,9 +21,13 @@ public class InventoryPage extends BasePage {
 
     public void addItemsToCart(List<String> itemNames) {
         for (String itemName : itemNames) {
-            for (WebElement item : inventoryItems) {
-                String name = getText(item.findElement(ITEM_NAME));
-                if (name.equalsIgnoreCase(itemName)) {
+            // Re-fetch inventory items each iteration
+            // Avoids StaleElementReferenceException after DOM updates
+            List<WebElement> items = driver.findElements(
+                    By.className("inventory_item"));
+            for (WebElement item : items) {
+                String name = item.findElement(ITEM_NAME).getText();
+                if (name.equalsIgnoreCase(itemName.trim())) {
                     click(item.findElement(ITEM_BUTTON));
                     break;
                 }

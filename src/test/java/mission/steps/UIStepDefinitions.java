@@ -51,7 +51,7 @@ public class UIStepDefinitions {
 
     @And("I add the following items to the basket")
     public void iAddTheFollowingItemsToTheBasket(DataTable dataTable) {
-        List<String> itemNames = dataTable.asList();
+        List<String> itemNames = dataTable.asList(String.class);
         inventoryPage.addItemsToCart(itemNames);
     }
 
@@ -85,7 +85,7 @@ public class UIStepDefinitions {
 
     @And("I remove the following item:")
     public void iRemoveTheFollowingItem(DataTable dataTable) {
-        List<String> itemNames = dataTable.asList();
+        List<String> itemNames = dataTable.asList(String.class);
         cartPage.removeItemFromCart(itemNames.get(0));
     }
 

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 /**
  * Step definitions for API scenarios.
  */
@@ -37,7 +38,7 @@ public class APIStepDefinitions {
         response = apiClient.getUsers(1);
         // Read total users count and total pages from first page response
         totalUsersCount = response.jsonPath().getInt("total");
-        int totalPages   = response.jsonPath().getInt("total_pages");
+        int totalPages = response.jsonPath().getInt("total_pages");
 
         // Collect user IDs from page 1
         List<Integer> pageOneIds = response.jsonPath().getList("data.id");
@@ -77,7 +78,7 @@ public class APIStepDefinitions {
     public void iShouldSeeFollowingUserData(DataTable dataTable) {
         List<Map<String, String>> expectedData = dataTable.asMaps();
         String expectedFirstName = expectedData.get(0).get("first_name");
-        String expectedEmail     = expectedData.get(0).get("email");
+        String expectedEmail = expectedData.get(0).get("email");
 
         // Deserialize response data object into UserData model
         UserData user = response.jsonPath()
@@ -111,13 +112,9 @@ public class APIStepDefinitions {
 
     @Then("response should contain the following data")
     public void responseShouldContainTheFollowingData(DataTable dataTable) {
-        // Deserialize response into CreatedUserResponse model
         CreatedUserResponse created = response.as(CreatedUserResponse.class);
+        List<String> expectedFields = dataTable.asLists().get(0);
 
-        // Get expected field names from the data table header row
-        List<String> expectedFields = dataTable.asList();
-
-        // Assert each expected field is present and not null
         for (String field : expectedFields) {
             switch (field) {
                 case "name":
@@ -137,7 +134,7 @@ public class APIStepDefinitions {
                             "Field 'createdAt' is null in response");
                     break;
                 default:
-                    Assert.fail("Unexpected field in test data: " + field);
+                    Assert.fail("Unexpected field: " + field);
             }
         }
     }
@@ -149,7 +146,7 @@ public class APIStepDefinitions {
     @Given("I login successfully with the following data")
     public void iLoginSuccessfullyWithTheFollowingData(DataTable dataTable) {
         List<Map<String, String>> credentials = dataTable.asMaps();
-        String email    = credentials.get(0).get("Email");
+        String email = credentials.get(0).get("Email");
         String password = credentials.get(0).get("Password");
         response = apiClient.loginWithCredentials(email, password);
     }
@@ -174,7 +171,7 @@ public class APIStepDefinitions {
     @And("I should see the following response message:")
     public void iShouldSeeTheFollowingResponseMessage(DataTable dataTable) {
         String expectedMessage = dataTable.asList().get(0);
-        String responseBody    = response.getBody().asString();
+        String responseBody = response.getBody().asString();
 
         Assert.assertTrue(responseBody.contains("Missing password"),
                 "Expected error message not found in response. " +
